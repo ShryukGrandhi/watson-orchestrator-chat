@@ -162,62 +162,25 @@ Host URL: https://dl.watson-orchestrate.ibm.com
     </div>
 
     <script>
-        // Watson Orchestrator Configuration (Host Validation Bypass)
+        // Watson Orchestrator Configuration (Simplified for Production)
         window.wxOConfiguration = {
             orchestrationID: "20251002-0017-5466-8027-ffbdc3cb4c0e_20251002-0020-1670-60f1-755f8bce5ba9",
             hostURL: "https://dl.watson-orchestrate.ibm.com",
             rootElementID: "root",
             chatOptions: {
                 agentId: "eb15a996-eec3-4d5f-8753-70cd7bd9c574", 
-                agentEnvironmentId: "ffc889cf-eb4f-4967-aa47-2d9aefda8bf1",
-                debug: true,
-                verbose: true,
-                // Bypass host validation
-                skipHostValidation: true,
-                allowLocalhost: true,
-                disableHostCheck: true
-            },
-            // Additional options to bypass validation
-            bypassValidation: true,
-            allowLocalDevelopment: true
+                agentEnvironmentId: "ffc889cf-eb4f-4967-aa47-2d9aefda8bf1"
+            }
         };
         
         console.log('Watson Configuration:', window.wxOConfiguration);
         
-        // Override host validation functions
-        window.addEventListener('load', function() {
-            // Override console methods to catch validation errors
-            const originalError = console.error;
-            console.error = function(...args) {
-                const message = args.join(' ');
-                if (message.includes('Host validation failed') || 
-                    message.includes('Host is not supported') ||
-                    message.includes('Host is not valid') ||
-                    message.includes('insights whitelist')) {
-                    console.log('Host validation error intercepted and ignored:', message);
-                    return; // Don't show these errors
-                }
-                originalError.apply(console, args);
-            };
-        });
-        
-        // Override fetch to modify requests if needed
-        const originalFetch = window.fetch;
-        window.fetch = function(url, options) {
-            if (url.includes('watson-orchestrate.ibm.com')) {
-                // Add headers to bypass validation
-                options = options || {};
-                options.headers = options.headers || {};
-                options.headers['X-Allow-Localhost'] = 'true';
-                options.headers['X-Bypass-Validation'] = 'true';
-            }
-            return originalFetch(url, options);
-        };
-        
+        // Simple, clean initialization
         setTimeout(function () {
             console.log('Loading Watson Orchestrator script...');
             const script = document.createElement('script');
             script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+            script.async = true;
             
             script.addEventListener('load', function () {
                 console.log('Script loaded successfully');
@@ -227,22 +190,28 @@ Host URL: https://dl.watson-orchestrate.ibm.com
                         wxoLoader.init();
                         console.log('wxoLoader initialized');
                         
-                        // Hide loading indicator
-                        const loadingElement = document.getElementById('loading');
-                        if (loadingElement) {
-                            loadingElement.style.display = 'none';
-                        }
-                        
-                        // Add error monitoring
-                        window.addEventListener('error', function(e) {
-                            console.error('Global error:', e);
-                        });
+                        // Wait a bit for the UI to render
+                        setTimeout(function() {
+                            const loadingElement = document.getElementById('loading');
+                            if (loadingElement) {
+                                loadingElement.style.display = 'none';
+                            }
+                            console.log('Loading indicator hidden');
+                        }, 3000);
                         
                     } else {
                         console.error('wxoLoader is not defined');
+                        const loadingElement = document.getElementById('loading');
+                        if (loadingElement) {
+                            loadingElement.innerHTML = '<p style="color: #e74c3c;">Error: wxoLoader not found</p>';
+                        }
                     }
                 } catch (error) {
                     console.error('Error during initialization:', error);
+                    const loadingElement = document.getElementById('loading');
+                    if (loadingElement) {
+                        loadingElement.innerHTML = '<p style="color: #e74c3c;">Error: ' + error.message + '</p>';
+                    }
                 }
             });
             
@@ -250,13 +219,13 @@ Host URL: https://dl.watson-orchestrate.ibm.com
                 console.error('Script load error:', error);
                 const loadingElement = document.getElementById('loading');
                 if (loadingElement) {
-                    loadingElement.innerHTML = '<p style="color: #e74c3c;">Failed to load Watson Orchestrator script.</p>';
+                    loadingElement.innerHTML = '<p style="color: #e74c3c;">Failed to load Watson Orchestrator script. Please check your connection.</p>';
                 }
             });
             
             document.head.appendChild(script);
             console.log('Script element added to head');
-        }, 0);
+        }, 1000);
     </script>
 </body>
 </html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watson Orchestrator - Minimal Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #root {
+            min-height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+            margin: 20px 0;
+        }
+        .status {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Watson Orchestrator - Minimal Test</h1>
+        
+        <div class="status" id="status">
+            Initializing...
+        </div>
+        
+        <div id="root"></div>
+    </div>
+
+    <script>
+        // Minimal Watson Configuration
+        window.wxOConfiguration = {
+            orchestrationID: "20251002-0017-5466-8027-ffbdc3cb4c0e_20251002-0020-1670-60f1-755f8bce5ba9",
+            hostURL: "https://dl.watson-orchestrate.ibm.com",
+            rootElementID: "root",
+            chatOptions: {
+                agentId: "eb15a996-eec3-4d5f-8753-70cd7bd9c574", 
+                agentEnvironmentId: "ffc889cf-eb4f-4967-aa47-2d9aefda8bf1"
+            }
+        };
+
+        const statusEl = document.getElementById('status');
+        
+        function updateStatus(message) {
+            statusEl.textContent = message;
+            console.log(message);
+        }
+
+        updateStatus('Configuration loaded: ' + JSON.stringify(window.wxOConfiguration));
+
+        // Load Watson script
+        const script = document.createElement('script');
+        script.src = 'https://dl.watson-orchestrate.ibm.com/wxochat/wxoLoader.js?embed=true';
+        
+        script.onload = function() {
+            updateStatus('Script loaded successfully');
+            try {
+                if (typeof wxoLoader !== 'undefined') {
+                    updateStatus('wxoLoader found, initializing...');
+                    wxoLoader.init();
+                    updateStatus('wxoLoader initialized - waiting for UI...');
+                    
+                    // Check if UI loaded after 5 seconds
+                    setTimeout(function() {
+                        const rootEl = document.getElementById('root');
+                        if (rootEl && rootEl.children.length > 0) {
+                            updateStatus('SUCCESS: Chat UI loaded with ' + rootEl.children.length + ' elements');
+                        } else {
+                            updateStatus('WARNING: No UI elements found in root');
+                        }
+                    }, 5000);
+                    
+                } else {
+                    updateStatus('ERROR: wxoLoader not found after script load');
+                }
+            } catch (error) {
+                updateStatus('ERROR during initialization: ' + error.message);
+            }
+        };
+        
+        script.onerror = function(error) {
+            updateStatus('ERROR: Script load failed - ' + error);
+        };
+        
+        document.head.appendChild(script);
+        updateStatus('Script element added to head');
+    </script>
+</body>
+</html>
