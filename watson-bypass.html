@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watson Orchestrator - Host Validation Bypass</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .chat-container {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            min-height: 700px;
+            background: #f8f9fa;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #root {
+            width: 100%;
+            height: 100%;
+            min-height: 700px;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #666;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .bypass-info {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .bypass-info h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>IBM Watson Orchestrator</h1>
+            <p>Host Validation Bypass Version</p>
+        </div>
+        
+        <div class="content">
+            <div class="bypass-info">
+                <h3>🔧 Host Validation Bypass Active</h3>
+                <p>This version attempts to bypass localhost host validation restrictions. If this doesn't work, you'll need to deploy to a public domain.</p>
+            </div>
+            
+            <div class="chat-container">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Loading Watson Orchestrator with bypass...</p>
+                </div>
+                <div id="root"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Aggressive host validation bypass
+        (function() {
+            // Override console methods before Watson loads
+            const originalError = console.error;
+            const originalWarn = console.warn;
+            const originalLog = console.log;
+            
+            console.error = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('Host validation') || 
+                    message.includes('Host is not supported') ||
+                    message.includes('Host is not valid') ||
+                    message.includes('insights whitelist') ||
+                    message.includes('Host is not in insights')) {
+                    originalLog('Host validation bypassed:', message);
+                    return;
+                }
+                originalError.apply(console, args);
+            };
+            
+            console.warn = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('Host validation') || 
+                    message.includes('Host is not supported') ||
+                    message.includes('Host is not valid') ||
+                    message.includes('insights whitelist')) {
+                    originalLog('Host validation warning bypassed:', message);
+                    return;
+                }
+                originalWarn.apply(console, args);
+            };
+            
+            // Override fetch to add bypass headers
+            const originalFetch = window.fetch;
+            window.fetch = function(url, options) {
+                if (url.includes('watson-orchestrate.ibm.com')) {
+                    options = options || {};
+                    options.headers = options.headers || {};
+                    options.headers['X-Allow-Localhost'] = 'true';
+                    options.headers['X-Bypass-Validation'] = 'true';
+                    options.headers['X-Development-Mode'] = 'true';
+                }
+                return originalFetch(url, options);
+            };
+            
+            // Override XMLHttpRequest as well
+            const originalXHROpen = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function(method, url, ...args) {
+                if (url.includes('watson-orchestrate.ibm.com')) {
+                    this.setRequestHeader('X-Allow-Localhost', 'true');
+                    this.setRequestHeader('X-Bypass-Validation', 'true');
+                }
+                return originalXHROpen.call(this, method, url, ...args);
+            };
+        })();
+
+        // Watson Orchestrator Configuration
+        window.wxOConfiguration = {
+            orchestrationID: "20251002-0017-5466-8027-ffbdc3cb4c0e_20251002-0020-1670-60f1-755f8bce5ba9",
+            hostURL: "https://dl.watson-orchestrate.ibm.com",
+            rootElementID: "root",
+            chatOptions: {
+                agentId: "eb15a996-eec3-4d5f-8753-70cd7bd9c574", 
+                agentEnvironmentId: "ffc889cf-eb4f-4967-aa47-2d9aefda8bf1",
+                debug: true,
+                // Bypass options
+                skipHostValidation: true,
+                allowLocalhost: true,
+                disableHostCheck: true,
+                developmentMode: true
+            },
+            // Global bypass options
+            bypassValidation: true,
+            allowLocalDevelopment: true,
+            skipHostWhitelist: true
+        };
+        
+        console.log('Watson Configuration with bypass:', window.wxOConfiguration);
+        
+        setTimeout(function () {
+            console.log('Loading Watson Orchestrator with bypass...');
+            const script = document.createElement('script');
+            script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true&bypass=true&localhost=true`;
+            
+            script.addEventListener('load', function () {
+                console.log('Script loaded successfully');
+                try {
+                    if (typeof wxoLoader !== 'undefined') {
+                        console.log('Initializing wxoLoader with bypass...');
+                        wxoLoader.init();
+                        console.log('wxoLoader initialized');
+                        
+                        // Hide loading indicator
+                        const loadingElement = document.getElementById('loading');
+                        if (loadingElement) {
+                            loadingElement.style.display = 'none';
+                        }
+                        
+                    } else {
+                        console.error('wxoLoader is not defined');
+                    }
+                } catch (error) {
+                    console.error('Error during initialization:', error);
+                }
+            });
+            
+            script.addEventListener('error', function (error) {
+                console.error('Script load error:', error);
+                const loadingElement = document.getElementById('loading');
+                if (loadingElement) {
+                    loadingElement.innerHTML = '<p style="color: #e74c3c;">Failed to load Watson Orchestrator script.</p>';
+                }
+            });
+            
+            document.head.appendChild(script);
+            console.log('Script element added to head');
+        }, 0);
+    </script>
+</body>
+</html>
