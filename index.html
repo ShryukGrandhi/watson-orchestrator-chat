@@ -175,7 +175,7 @@ Host URL: https://dl.watson-orchestrate.ibm.com
         
         console.log('Watson Configuration:', window.wxOConfiguration);
         
-        // Simple, clean initialization
+        // Enhanced initialization with UI forcing
         setTimeout(function () {
             console.log('Loading Watson Orchestrator script...');
             const script = document.createElement('script');
@@ -190,14 +190,61 @@ Host URL: https://dl.watson-orchestrate.ibm.com
                         wxoLoader.init();
                         console.log('wxoLoader initialized');
                         
-                        // Wait a bit for the UI to render
-                        setTimeout(function() {
+                        // Force UI rendering with multiple attempts
+                        let attempts = 0;
+                        const maxAttempts = 10;
+                        
+                        const checkForUI = function() {
+                            attempts++;
+                            const rootElement = document.getElementById('root');
                             const loadingElement = document.getElementById('loading');
-                            if (loadingElement) {
-                                loadingElement.style.display = 'none';
+                            
+                            console.log(`UI check attempt ${attempts}/${maxAttempts}`);
+                            
+                            if (rootElement && rootElement.children.length > 0) {
+                                console.log('UI found! Hiding loading indicator');
+                                if (loadingElement) {
+                                    loadingElement.style.display = 'none';
+                                }
+                                // Force the chat container to be visible
+                                const chatContainer = document.querySelector('.chat-container');
+                                if (chatContainer) {
+                                    chatContainer.style.background = 'white';
+                                    chatContainer.style.minHeight = '700px';
+                                }
+                                return;
                             }
-                            console.log('Loading indicator hidden');
-                        }, 3000);
+                            
+                            if (attempts < maxAttempts) {
+                                setTimeout(checkForUI, 1000);
+                            } else {
+                                console.log('UI not found after maximum attempts');
+                                if (loadingElement) {
+                                    loadingElement.innerHTML = '<p style="color: #e74c3c;">Chat UI failed to load. Please refresh the page or check your configuration.</p>';
+                                }
+                                
+                                // Try to force render by triggering a resize event
+                                window.dispatchEvent(new Event('resize'));
+                                
+                                // Try to manually trigger the chat widget
+                                if (window.wxOConfiguration && window.wxOConfiguration.chatOptions) {
+                                    console.log('Attempting manual chat widget initialization...');
+                                    setTimeout(function() {
+                                        if (typeof wxoLoader !== 'undefined' && wxoLoader.init) {
+                                            try {
+                                                wxoLoader.init();
+                                                console.log('Manual re-initialization attempted');
+                                            } catch (e) {
+                                                console.error('Manual re-initialization failed:', e);
+                                            }
+                                        }
+                                    }, 2000);
+                                }
+                            }
+                        };
+                        
+                        // Start checking for UI after a short delay
+                        setTimeout(checkForUI, 2000);
                         
                     } else {
                         console.error('wxoLoader is not defined');
