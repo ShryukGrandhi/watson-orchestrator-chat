@@ -122,17 +122,18 @@
     </div>
 
     <script>
-        // Original Watson Orchestrator Configuration (exactly as you provided)
+        // Your exact Watson Orchestrator Configuration
         window.wxOConfiguration = {
             orchestrationID: "20251002-0017-5466-8027-ffbdc3cb4c0e_20251002-0020-1670-60f1-755f8bce5ba9",
             hostURL: "https://dl.watson-orchestrate.ibm.com",
             rootElementID: "root",
             chatOptions: {
                 agentId: "eb15a996-eec3-4d5f-8753-70cd7bd9c574", 
+                agentEnvironmentId: "ffc889cf-eb4f-4967-aa47-2d9aefda8bf1",
             }
         };
         
-        // Original loading method (exactly as you provided)
+        // Your exact loading method
         setTimeout(function () {
             const script = document.createElement('script');
             script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;

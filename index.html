@@ -162,117 +162,41 @@ Host URL: https://dl.watson-orchestrate.ibm.com
     </div>
 
     <script>
-        // Watson Orchestrator Configuration (Simplified for Production)
+        // Watson Orchestrator Configuration (Your Exact Embedding)
         window.wxOConfiguration = {
             orchestrationID: "20251002-0017-5466-8027-ffbdc3cb4c0e_20251002-0020-1670-60f1-755f8bce5ba9",
             hostURL: "https://dl.watson-orchestrate.ibm.com",
             rootElementID: "root",
             chatOptions: {
                 agentId: "eb15a996-eec3-4d5f-8753-70cd7bd9c574", 
-                agentEnvironmentId: "ffc889cf-eb4f-4967-aa47-2d9aefda8bf1"
+                agentEnvironmentId: "ffc889cf-eb4f-4967-aa47-2d9aefda8bf1",
             }
         };
         
         console.log('Watson Configuration:', window.wxOConfiguration);
         
-        // Enhanced initialization with UI forcing
+        // Your exact embedding initialization
         setTimeout(function () {
-            console.log('Loading Watson Orchestrator script...');
             const script = document.createElement('script');
             script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
-            script.async = true;
-            
             script.addEventListener('load', function () {
-                console.log('Script loaded successfully');
-                try {
-                    if (typeof wxoLoader !== 'undefined') {
-                        console.log('Initializing wxoLoader...');
-                        wxoLoader.init();
-                        console.log('wxoLoader initialized');
-                        
-                        // Force UI rendering with multiple attempts
-                        let attempts = 0;
-                        const maxAttempts = 10;
-                        
-                        const checkForUI = function() {
-                            attempts++;
-                            const rootElement = document.getElementById('root');
-                            const loadingElement = document.getElementById('loading');
-                            
-                            console.log(`UI check attempt ${attempts}/${maxAttempts}`);
-                            
-                            if (rootElement && rootElement.children.length > 0) {
-                                console.log('UI found! Hiding loading indicator');
-                                if (loadingElement) {
-                                    loadingElement.style.display = 'none';
-                                }
-                                // Force the chat container to be visible
-                                const chatContainer = document.querySelector('.chat-container');
-                                if (chatContainer) {
-                                    chatContainer.style.background = 'white';
-                                    chatContainer.style.minHeight = '700px';
-                                }
-                                return;
-                            }
-                            
-                            if (attempts < maxAttempts) {
-                                setTimeout(checkForUI, 1000);
-                            } else {
-                                console.log('UI not found after maximum attempts');
-                                if (loadingElement) {
-                                    loadingElement.innerHTML = '<p style="color: #e74c3c;">Chat UI failed to load. Please refresh the page or check your configuration.</p>';
-                                }
-                                
-                                // Try to force render by triggering a resize event
-                                window.dispatchEvent(new Event('resize'));
-                                
-                                // Try to manually trigger the chat widget
-                                if (window.wxOConfiguration && window.wxOConfiguration.chatOptions) {
-                                    console.log('Attempting manual chat widget initialization...');
-                                    setTimeout(function() {
-                                        if (typeof wxoLoader !== 'undefined' && wxoLoader.init) {
-                                            try {
-                                                wxoLoader.init();
-                                                console.log('Manual re-initialization attempted');
-                                            } catch (e) {
-                                                console.error('Manual re-initialization failed:', e);
-                                            }
-                                        }
-                                    }, 2000);
-                                }
-                            }
-                        };
-                        
-                        // Start checking for UI after a short delay
-                        setTimeout(checkForUI, 2000);
-                        
-                    } else {
-                        console.error('wxoLoader is not defined');
-                        const loadingElement = document.getElementById('loading');
-                        if (loadingElement) {
-                            loadingElement.innerHTML = '<p style="color: #e74c3c;">Error: wxoLoader not found</p>';
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error during initialization:', error);
+                wxoLoader.init();
+                // Hide loading indicator after initialization
+                setTimeout(function() {
                     const loadingElement = document.getElementById('loading');
                     if (loadingElement) {
-                        loadingElement.innerHTML = '<p style="color: #e74c3c;">Error: ' + error.message + '</p>';
+                        loadingElement.style.display = 'none';
                     }
-                }
+                }, 3000);
             });
-            
-            script.addEventListener('error', function (error) {
-                console.error('Script load error:', error);
+            script.addEventListener('error', function () {
                 const loadingElement = document.getElementById('loading');
                 if (loadingElement) {
-                    loadingElement.innerHTML = '<p style="color: #e74c3c;">Failed to load Watson Orchestrator script. Please check your connection.</p>';
+                    loadingElement.innerHTML = '<p style="color: #e74c3c;">Failed to load Watson Orchestrator.</p>';
                 }
             });
-            
             document.head.appendChild(script);
-            console.log('Script element added to head');
-        }, 1000);
+        }, 0);
     </script>
 </body>
 </html>
